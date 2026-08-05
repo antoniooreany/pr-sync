@@ -1,15 +1,55 @@
 """
 GitHub interaction layer using gh CLI.
 """
+import subprocess
+import json
 
-def find_open_pr(base: str, head: str):
-    """Find an open PR for the given base and head branches."""
-    pass
+def check_auth() -> bool:
+    """Check if gh CLI is authenticated."""
+    try:
+        result = subprocess.run(
+            ["gh", "auth", "status"],
+            capture_output=True, text=True
+        )
+        return result.returncode == 0
+    except FileNotFoundError:
+        return False
 
-def create_pr(title: str, body: str, base: str, head: str):
+def find_open_pr(base: str, head: str) -> dict:
+    """Find an open PR for the given base and head branches. Returns dict with PR info or None."""
+    if not check_auth():
+        raise RuntimeError("GitHub CLI is not authenticated or not found")
+        
+    result = subprocess.run(
+        ["gh", "pr", "list", "--base", base, "--head", head, "--state", "open", "--json", "number,url,title,body"],
+        capture_output=True, text=True, check=True
+    )
+    prs = json.loads(result.stdout)
+    if not prs:
+        return None
+    if len(prs) > 1:
+        raise ValueError(f"Found multiple open PRs for base {base} and head {head}")
+    return prs[0]
+
+def create_pr(title: str, body: str, base: str, head: str) -> dict:
     """Create a new PR."""
-    pass
+    if not check_auth():
+        raise RuntimeError("GitHub CLI is not authenticated or not found")
+        
+    result = subprocess.run(
+        ["gh", "pr", "create", "--base", base, "--head", head, "--title", title, "--body", body],
+        capture_output=True, text=True, check=True
+    )
+    url = result.stdout.strip()
+    return {"url": url}
 
-def update_pr(pr_number: str, title: str, body: str):
+def update_pr(pr_number: str, title: str, body: str) -> dict:
     """Update an existing PR."""
-    pass
+    if not check_auth():
+        raise RuntimeError("GitHub CLI is not authenticated or not found")
+        
+    subprocess.run(
+        ["gh", "pr", "edit", str(pr_number), "--title", title, "--body", body],
+        capture_output=True, text=True, check=True
+    )
+    return {"number": pr_number}
