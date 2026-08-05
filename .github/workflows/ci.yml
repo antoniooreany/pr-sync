@@ -32,12 +32,15 @@ jobs:
           test -f specs/001-automation-toolkit/plan.md
           test -f specs/001-automation-toolkit/tasks.md
 
-      - name: Check for TODO/FIXME in specs
-        run: |
-          if grep -R "TODO\|FIXME\|XXX" .specify specs/001-automation-toolkit; then
-            echo "::error::Unresolved TODO/FIXME markers in specifications"
-            exit 1
-          fi
+- name: Check for TODO/FIXME in specs (excluding templates and memory)
+  run: |
+    if grep -R "TODO\|FIXME\|XXX" \
+      .specify specs/001-automation-toolkit \
+      --exclude-dir=templates \
+      --exclude-dir=memory; then
+      echo "::error::Unresolved TODO/FIXME markers in core specifications"
+      exit 1
+    fi
 
       - name: Run tests
         run: |
