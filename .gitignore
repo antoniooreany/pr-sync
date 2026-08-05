@@ -1,0 +1,8 @@
+bin/
+obj/
+node_modules/
+.env
+.vscode/
+.idea/
+*.user
+*.log
