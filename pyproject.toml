@@ -1,15 +1,17 @@
-[build-system]
-requires = ["setuptools>=61.0"]
-build-backend = "setuptools.build_meta"
-
 [project]
 name = "automation-toolkit"
 version = "0.1.0"
-description = "Automation Toolkit for PRs, Releases, and Repo Hygiene"
+description = "A family of small, focused automation tools."
 authors = [
-    {name = "antoniooreany", email = "antoniooreany@example.com"}
+    {name = "antoniooreany"}
 ]
+readme = "README.md"
+requires-python = ">=3.9"
 dependencies = []
 
 [project.scripts]
-pr-sync = "pr_sync.cli:main"
+pr-sync = "toolkit.cli:main"
+
+[build-system]
+requires = ["setuptools>=42", "wheel"]
+build-backend = "setuptools.build_meta"
