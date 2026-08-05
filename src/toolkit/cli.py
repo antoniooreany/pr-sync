@@ -1,6 +1,6 @@
 import sys
 import argparse
-from toolkit.git_api import get_current_branch, get_diff
+from toolkit.git_api import get_current_branch, get_diff, get_commits, get_changed_files
 from toolkit.gh_api import check_auth, find_open_pr, create_pr, update_pr
 from toolkit.pr_body import render_pr_body
 from toolkit.invariants import check_no_empty_diff_action
@@ -25,10 +25,10 @@ def main():
                 print("Empty diff, no action taken.")
                 return 0
 
-        # Commits are mocked or empty for now
-        commits = []
+        commits = get_commits(base, head)
+        changed_files = get_changed_files(base, head)
         
-        body = render_pr_body(diff, commits)
+        body = render_pr_body(diff, commits, base=base, head=head, changed_files=changed_files)
         title = f"Auto PR: {head}"
         
         pr = find_open_pr(base, head)
