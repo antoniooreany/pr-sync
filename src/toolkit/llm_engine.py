@@ -52,6 +52,13 @@ Respond with ONLY the markdown content for these two sections:
         with urllib.request.urlopen(req, timeout=30.0) as resp:
             data = json.loads(resp.read().decode("utf-8"))
             return data["candidates"][0]["content"]["parts"][0]["text"]
+    except urllib.error.HTTPError as e:
+        print(f"Gemini API Error: {e}")
+        try:
+            print(f"Response body: {e.read().decode('utf-8')}")
+        except:
+            pass
+        return None
     except Exception as e:
         # Fallback gracefully
         print(f"Gemini API Error: {e}")
