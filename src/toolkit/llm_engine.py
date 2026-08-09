@@ -10,7 +10,7 @@ def generate_smart_pr_summary(diff: str, commits: list[str]) -> Optional[str]:
     if not api_key:
         return None
         
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={api_key}"
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={api_key}"
     
     prompt = f"""You are an expert software engineer reviewing a pull request.
 Based on the following commits and git diff, generate a concise and meaningful PR description.
