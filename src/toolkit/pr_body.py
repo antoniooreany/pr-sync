@@ -1,5 +1,7 @@
 import datetime
 from pathlib import Path
+from toolkit.docs_generator import infer_type_label, infer_area_labels
+from toolkit.llm_engine import generate_smart_pr_summary
 
 def render_pr_body(diff: str, commits: list, base: str = "develop", head: str = "HEAD", changed_files: list = None) -> str:
     """Render the PR body using a local template or falling back to the default."""
@@ -10,7 +12,28 @@ def render_pr_body(diff: str, commits: list, base: str = "develop", head: str = 
     changes_str = "\n".join(f"- {f}" for f in changed_files) if changed_files else "- None"
     timestamp = datetime.datetime.now().astimezone().strftime("%Y-%m-%d %H:%M:%S %z")
     
-    # Context for rendering
+    # Infer labels from the changed files
+    type_label = infer_type_label(changed_files)
+    area_labels = infer_area_labels(changed_files)
+    inferred_labels = f"{type_label}, " + ", ".join(area_labels)
+
+    # Try to generate smart summary via LLM
+    smart_summary = generate_smart_pr_summary(diff, commits)
+    
+    if smart_summary:
+        body_content = f"""{smart_summary}
+
+## Raw Changes
+{changes_str}
+
+## Inferred Labels
+- {inferred_labels}
+
+## Notes
+_Last updated by pr-sync (Smart Mode) at {timestamp}._"""
+        return body_content
+    
+    # Context for rendering (fallback)
     context = {
         "{head}": head,
         "{base}": base,
@@ -40,6 +63,10 @@ Introduce changes from branch {head} into {base}.
 
 {commits_str}
 
+## Inferred Labels
+
+- {inferred_labels}
+
 ## Risks
 
 - Low: see commit history for scope of change.
@@ -57,3 +84,4 @@ Introduce changes from branch {head} into {base}.
 -
 
 _Last updated by pr-sync at {timestamp}._"""
+
