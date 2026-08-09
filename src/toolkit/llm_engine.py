@@ -5,12 +5,12 @@ import urllib.error
 from typing import Optional
 
 def generate_smart_pr_summary(diff: str, commits: list[str]) -> Optional[str]:
-    """Uses Claude API to generate a smart summary and risk analysis."""
-    api_key = os.environ.get("ANTHROPIC_API_KEY")
+    """Uses Gemini API to generate a smart summary and risk analysis."""
+    api_key = os.environ.get("GEMINI_API_KEY")
     if not api_key:
         return None
         
-    url = "https://api.anthropic.com/v1/messages"
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={api_key}"
     
     prompt = f"""You are an expert software engineer reviewing a pull request.
 Based on the following commits and git diff, generate a concise and meaningful PR description.
@@ -32,28 +32,28 @@ Respond with ONLY the markdown content for these two sections:
 """
     
     payload = {
-        "model": "claude-3-haiku-20240307",
-        "max_tokens": 1000,
-        "messages": [
-            {"role": "user", "content": prompt}
-        ]
+        "contents": [{
+            "parts": [{"text": prompt}]
+        }],
+        "generationConfig": {
+            "temperature": 0.2
+        }
     }
     
     req = urllib.request.Request(
         url,
         data=json.dumps(payload).encode("utf-8"),
         headers={
-            "x-api-key": api_key,
-            "anthropic-version": "2023-06-01",
-            "content-type": "application/json"
+            "Content-Type": "application/json"
         }
     )
     
     try:
         with urllib.request.urlopen(req, timeout=30.0) as resp:
             data = json.loads(resp.read().decode("utf-8"))
-            return data["content"][0]["text"]
+            return data["candidates"][0]["content"]["parts"][0]["text"]
     except Exception as e:
         # Fallback gracefully
-        print(f"LLM API Error: {e}")
+        print(f"Gemini API Error: {e}")
         return None
+
