@@ -1,6 +1,6 @@
 [project]
 name = "automation-toolkit"
-version = "0.1.0"
+version = "0.2.0"
 description = "A family of small, focused automation tools."
 authors = [
     {name = "antoniooreany"}
