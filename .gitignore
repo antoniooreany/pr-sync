@@ -6,3 +6,8 @@ node_modules/
 .idea/
 *.user
 *.log
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/

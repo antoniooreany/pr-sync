@@ -62,3 +62,4 @@
 - [ ] T008 [P] Sync docs and CLI contract in `docs/pr-sync-specification.md` and `specs/001-automation-toolkit/contracts/cli_contract.md`
 
 - [ ] T009 [P] Update quickstart scenarios in `specs/001-automation-toolkit/quickstart.md`
+ 

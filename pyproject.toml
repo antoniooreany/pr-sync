@@ -1,6 +1,6 @@
 [project]
 name = "automation-toolkit"
-version = "0.1.0"
+version = "0.2.0"
 description = "A family of small, focused automation tools."
 authors = [
     {name = "antoniooreany"}
@@ -10,8 +10,11 @@ requires-python = ">=3.9"
 dependencies = []
 
 [project.scripts]
-pr-sync = "toolkit.cli:main"
+pr = "toolkit.cli:main"
 
 [build-system]
 requires = ["setuptools>=42", "wheel"]
 build-backend = "setuptools.build_meta"
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
