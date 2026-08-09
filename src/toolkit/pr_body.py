@@ -1,7 +1,8 @@
 import datetime
+from pathlib import Path
 
 def render_pr_body(diff: str, commits: list, base: str = "develop", head: str = "HEAD", changed_files: list = None) -> str:
-    """Render the standard PR body."""
+    """Render the PR body using a local template or falling back to the default."""
     if changed_files is None:
         changed_files = []
         
@@ -9,6 +10,24 @@ def render_pr_body(diff: str, commits: list, base: str = "develop", head: str = 
     changes_str = "\n".join(f"- {f}" for f in changed_files) if changed_files else "- None"
     timestamp = datetime.datetime.now().astimezone().strftime("%Y-%m-%d %H:%M:%S %z")
     
+    # Context for rendering
+    context = {
+        "{head}": head,
+        "{base}": base,
+        "{changes_str}": changes_str,
+        "{commits_str}": commits_str,
+        "{timestamp}": timestamp
+    }
+    
+    local_template = Path(".specify/templates/pr-template.md")
+    
+    if local_template.exists():
+        body = local_template.read_text(encoding="utf-8")
+        for key, val in context.items():
+            body = body.replace(key, val)
+        return body
+        
+    # Default fallback template
     return f"""## Summary
 
 Introduce changes from branch {head} into {base}.
