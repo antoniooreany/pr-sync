@@ -10,7 +10,7 @@ requires-python = ">=3.9"
 dependencies = []
 
 [project.scripts]
-pr-sync = "toolkit.cli:main"
+pr = "toolkit.cli:main"
 
 [build-system]
 requires = ["setuptools>=42", "wheel"]
