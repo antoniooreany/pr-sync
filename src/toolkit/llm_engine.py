@@ -12,24 +12,24 @@ def _get_best_gemini_model(api_key: str) -> str:
         with urllib.request.urlopen(req, timeout=15.0) as resp:
             data = json.loads(resp.read().decode("utf-8"))
             
-            # Prefer flash models
-            for model in data.get("models", []):
-                name = model.get("name", "")
-                methods = model.get("supportedGenerationMethods", [])
-                if "generateContent" in methods and "flash" in name and "vision" not in name:
-                    return name
+            # Print available models for debugging
+            available_models = [m.get("name") for m in data.get("models", []) if "generateContent" in m.get("supportedGenerationMethods", [])]
+            print(f"DEBUG: Found models supporting generateContent: {available_models}")
+            
+            # Prefer 2.0 flash over 1.5, ignore 2.5 which is broken
+            for target in ["models/gemini-2.0-flash", "models/gemini-1.5-pro", "models/gemini-1.5-pro-latest", "models/gemini-1.0-pro"]:
+                if target in available_models:
+                    return target
                     
-            # Fallback to pro
-            for model in data.get("models", []):
-                name = model.get("name", "")
-                methods = model.get("supportedGenerationMethods", [])
-                if "generateContent" in methods and "pro" in name and "vision" not in name:
+            # Fallback to the first flash model that isn't 2.5
+            for name in available_models:
+                if "flash" in name and "vision" not in name and "2.5" not in name:
                     return name
                     
     except Exception as e:
         print(f"Failed to list Gemini models: {e}")
         
-    return "models/gemini-1.5-flash"  # absolute fallback
+    return "models/gemini-2.0-flash"  # absolute fallback
 
 def generate_smart_pr_summary(diff: str, commits: list[str]) -> Optional[str]:
     """Uses Gemini API to generate a smart summary and risk analysis."""
