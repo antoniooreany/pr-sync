@@ -38,7 +38,8 @@ def _get_best_gemini_model(api_key: str) -> str:
 
 def generate_smart_pr_summary(diff: str, commits: list[str]) -> Optional[str]:
     """Uses LLM API to generate a smart summary and risk analysis."""
-    ollama_model = os.environ.get("OLLAMA_MODEL")
+    ollama_model_raw = os.environ.get("OLLAMA_MODEL")
+    ollama_model = ollama_model_raw.strip() if ollama_model_raw else None
     anthropic_key = os.environ.get("ANTHROPIC_API_KEY")
     gemini_key = os.environ.get("GEMINI_API_KEY")
     
