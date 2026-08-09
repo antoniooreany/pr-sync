@@ -3,7 +3,7 @@ from pathlib import Path
 from toolkit.docs_generator import infer_type_label, infer_area_labels
 from toolkit.llm_engine import generate_smart_pr_summary
 
-def render_pr_body(diff: str, commits: list, base: str = "develop", head: str = "HEAD", changed_files: list = None) -> str:
+def render_pr_body(diff: str, commits: list, base: str = "develop", head: str = "HEAD", changed_files: list = None, custom_model: str = None) -> str:
     """Render the PR body using a local template or falling back to the default."""
     if changed_files is None:
         changed_files = []
@@ -18,7 +18,8 @@ def render_pr_body(diff: str, commits: list, base: str = "develop", head: str = 
     inferred_labels = f"{type_label}, " + ", ".join(area_labels)
 
     # Try to generate smart summary via LLM
-    smart_summary = generate_smart_pr_summary(diff, commits)
+    smart_summary = generate_smart_pr_summary(diff, commits, custom_model=custom_model)
+
     
     if smart_summary:
         body_content = f"""{smart_summary}

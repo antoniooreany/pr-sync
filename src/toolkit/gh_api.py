@@ -62,6 +62,13 @@ def add_labels(pr_number: str, labels: list[str]) -> None:
     if not labels:
         return
 
+    # Ensure labels exist in the repository
+    for label in labels:
+        subprocess.run(
+            ["gh", "label", "create", label],
+            capture_output=True, text=True, encoding="utf-8"
+        )
+
     cmd = ["gh", "pr", "edit", str(pr_number)]
     for label in labels:
         cmd.extend(["--add-label", label])
@@ -70,4 +77,5 @@ def add_labels(pr_number: str, labels: list[str]) -> None:
         cmd,
         capture_output=True, text=True, encoding="utf-8", check=True
     )
+
 
