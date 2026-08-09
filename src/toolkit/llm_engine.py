@@ -38,11 +38,12 @@ def _get_best_gemini_model(api_key: str) -> str:
 
 def generate_smart_pr_summary(diff: str, commits: list[str]) -> Optional[str]:
     """Uses LLM API to generate a smart summary and risk analysis."""
+    ollama_model = os.environ.get("OLLAMA_MODEL")
     anthropic_key = os.environ.get("ANTHROPIC_API_KEY")
     gemini_key = os.environ.get("GEMINI_API_KEY")
     
-    if not anthropic_key and not gemini_key:
-        print("No ANTHROPIC_API_KEY or GEMINI_API_KEY found.")
+    if not ollama_model and not anthropic_key and not gemini_key:
+        print("No OLLAMA_MODEL, ANTHROPIC_API_KEY, or GEMINI_API_KEY found.")
         return None
 
     prompt = f"""You are an expert software engineer reviewing a pull request.
@@ -64,7 +65,16 @@ Respond with ONLY the markdown content for these two sections:
 <your assessment of risks>
 """
 
-    if anthropic_key:
+    if ollama_model:
+        print(f"Using local Ollama API (Model: {ollama_model})...")
+        url = "http://127.0.0.1:11434/api/generate"
+        payload = {
+            "model": ollama_model,
+            "prompt": prompt,
+            "stream": False
+        }
+        headers = {"Content-Type": "application/json"}
+    elif anthropic_key:
         print("Using Anthropic Claude API...")
         url = "https://api.anthropic.com/v1/messages"
         payload = {
@@ -98,9 +108,11 @@ Respond with ONLY the markdown content for these two sections:
     
     for attempt in range(retries):
         try:
-            with urllib.request.urlopen(req, timeout=30.0) as resp:
+            with urllib.request.urlopen(req, timeout=120.0) as resp:
                 data = json.loads(resp.read().decode("utf-8"))
-                if anthropic_key:
+                if ollama_model:
+                    return data["response"]
+                elif anthropic_key:
                     return data["content"][0]["text"]
                 else:
                     return data["candidates"][0]["content"]["parts"][0]["text"]
