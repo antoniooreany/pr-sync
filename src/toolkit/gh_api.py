@@ -9,7 +9,7 @@ def check_auth() -> bool:
     try:
         result = subprocess.run(
             ["gh", "auth", "status"],
-            capture_output=True, text=True
+            capture_output=True, text=True, encoding="utf-8"
         )
         return result.returncode == 0
     except FileNotFoundError:
@@ -22,7 +22,7 @@ def find_open_pr(base: str, head: str) -> dict:
         
     result = subprocess.run(
         ["gh", "pr", "list", "--base", base, "--head", head, "--state", "open", "--json", "number,url,title,body"],
-        capture_output=True, text=True, check=True
+        capture_output=True, text=True, encoding="utf-8", check=True
     )
     prs = json.loads(result.stdout)
     if not prs:
@@ -38,7 +38,7 @@ def create_pr(title: str, body: str, base: str, head: str) -> dict:
         
     result = subprocess.run(
         ["gh", "pr", "create", "--base", base, "--head", head, "--title", title, "--body", body],
-        capture_output=True, text=True, check=True
+        capture_output=True, text=True, encoding="utf-8", check=True
     )
     url = result.stdout.strip()
     return {"url": url}
@@ -50,6 +50,6 @@ def update_pr(pr_number: str, title: str, body: str) -> dict:
         
     subprocess.run(
         ["gh", "pr", "edit", str(pr_number), "--title", title, "--body", body],
-        capture_output=True, text=True, check=True
+        capture_output=True, text=True, encoding="utf-8", check=True
     )
     return {"number": pr_number}
