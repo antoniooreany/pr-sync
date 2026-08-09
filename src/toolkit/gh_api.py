@@ -53,3 +53,21 @@ def update_pr(pr_number: str, title: str, body: str) -> dict:
         capture_output=True, text=True, encoding="utf-8", check=True
     )
     return {"number": pr_number}
+
+def add_labels(pr_number: str, labels: list[str]) -> None:
+    """Apply GitHub labels to a PR. Creates labels if they don't exist."""
+    if not check_auth():
+        raise RuntimeError("GitHub CLI is not authenticated or not found")
+
+    if not labels:
+        return
+
+    cmd = ["gh", "pr", "edit", str(pr_number)]
+    for label in labels:
+        cmd.extend(["--add-label", label])
+
+    subprocess.run(
+        cmd,
+        capture_output=True, text=True, encoding="utf-8", check=True
+    )
+
