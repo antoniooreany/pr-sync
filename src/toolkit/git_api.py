@@ -8,7 +8,7 @@ def get_current_branch() -> str:
     try:
         result = subprocess.run(
             ["git", "rev-parse", "--abbrev-ref", "HEAD"],
-            capture_output=True, text=True, check=True
+            capture_output=True, text=True, encoding="utf-8", check=True
         )
         return result.stdout.strip()
     except subprocess.CalledProcessError as e:
@@ -21,7 +21,7 @@ def get_diff(base: str, head: str) -> str:
     try:
         result = subprocess.run(
             ["git", "diff", f"{base}..{head}"],
-            capture_output=True, text=True, check=True
+            capture_output=True, text=True, encoding="utf-8", check=True
         )
         return result.stdout
     except subprocess.CalledProcessError as e:
@@ -33,7 +33,7 @@ def get_commits(base: str, head: str) -> list[str]:
     try:
         result = subprocess.run(
             ["git", "log", "--oneline", f"{base}..{head}"],
-            capture_output=True, text=True, check=True
+            capture_output=True, text=True, encoding="utf-8", check=True
         )
         return [line.strip() for line in result.stdout.strip().splitlines() if line.strip()]
     except subprocess.CalledProcessError as e:
@@ -46,7 +46,7 @@ def get_changed_files(base: str, head: str) -> list[str]:
     try:
         result = subprocess.run(
             ["git", "diff", "--name-only", f"{base}...{head}"],
-            capture_output=True, text=True, check=True
+            capture_output=True, text=True, encoding="utf-8", check=True
         )
         return [line.strip() for line in result.stdout.strip().splitlines() if line.strip()]
     except subprocess.CalledProcessError as e:
