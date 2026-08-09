@@ -107,10 +107,13 @@ Respond with ONLY the markdown content for these two sections:
     retries = 3
     delay = 10
     
+    start_time = time.time()
     for attempt in range(retries):
         try:
             with urllib.request.urlopen(req, timeout=120.0) as resp:
                 data = json.loads(resp.read().decode("utf-8"))
+                elapsed = time.time() - start_time
+                print(f"LLM API call completed in {elapsed:.2f} seconds.")
                 if ollama_model:
                     return data["response"]
                 elif anthropic_key:
@@ -135,4 +138,5 @@ Respond with ONLY the markdown content for these two sections:
             return None
             
     return None
+
 
