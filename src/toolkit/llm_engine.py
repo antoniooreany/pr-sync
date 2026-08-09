@@ -1,5 +1,6 @@
 import json
 import os
+import time
 import urllib.request
 import urllib.error
 from typing import Optional
@@ -78,19 +79,31 @@ Respond with ONLY the markdown content for these two sections:
         }
     )
     
-    try:
-        with urllib.request.urlopen(req, timeout=30.0) as resp:
-            data = json.loads(resp.read().decode("utf-8"))
-            return data["candidates"][0]["content"]["parts"][0]["text"]
-    except urllib.error.HTTPError as e:
-        print(f"Gemini API Error: {e}")
+    retries = 3
+    delay = 10
+    
+    for attempt in range(retries):
         try:
-            print(f"Response body: {e.read().decode('utf-8')}")
-        except:
-            pass
-        return None
-    except Exception as e:
-        # Fallback gracefully
-        print(f"Gemini API Error: {e}")
-        return None
+            with urllib.request.urlopen(req, timeout=30.0) as resp:
+                data = json.loads(resp.read().decode("utf-8"))
+                return data["candidates"][0]["content"]["parts"][0]["text"]
+        except urllib.error.HTTPError as e:
+            if e.code == 429 and attempt < retries - 1:
+                print(f"Rate limited (429). Retrying in {delay} seconds (Attempt {attempt+1}/{retries})...")
+                time.sleep(delay)
+                delay *= 2
+                continue
+                
+            print(f"Gemini API Error: {e}")
+            try:
+                print(f"Response body: {e.read().decode('utf-8')}")
+            except:
+                pass
+            return None
+        except Exception as e:
+            # Fallback gracefully
+            print(f"Gemini API Error: {e}")
+            return None
+            
+    return None
 
