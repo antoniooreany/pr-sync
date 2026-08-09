@@ -9,6 +9,14 @@ from toolkit.docs_generator import infer_type_label, infer_area_labels
 
 def main():
     try:
+        # Reconfigure console output encoding on Windows to support emojis
+        if sys.platform == "win32":
+            try:
+                sys.stdout.reconfigure(encoding="utf-8")
+                sys.stderr.reconfigure(encoding="utf-8")
+            except AttributeError:
+                pass # Fallback for older python versions
+
         parser = argparse.ArgumentParser(description="PR Sync CLI")
         parser.add_argument("--base", default="develop", help="Base branch")
         parser.add_argument("--model", default=None, help="Custom Ollama model name")
@@ -16,6 +24,7 @@ def main():
 
         start_time = time.time()
         print("🚀 Starting PR Sync...")
+
 
         # Step 1: Auth check
         print("🔍 [1/4] Checking GitHub CLI authentication...")
