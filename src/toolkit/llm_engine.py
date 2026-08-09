@@ -67,7 +67,7 @@ Respond with ONLY the markdown content for these two sections:
 """
 
     if ollama_model:
-        print(f"Using local Ollama API (Model: {ollama_model})...")
+        print(f" ⚙️  Using local Ollama API (Model: {ollama_model})...")
         url = "http://127.0.0.1:11434/api/generate"
         payload = {
             "model": ollama_model,
@@ -76,7 +76,7 @@ Respond with ONLY the markdown content for these two sections:
         }
         headers = {"Content-Type": "application/json"}
     elif anthropic_key:
-        print("Using Anthropic Claude API...")
+        print(" ⚙️  Using Anthropic Claude API...")
         url = "https://api.anthropic.com/v1/messages"
         payload = {
             "model": "claude-3-haiku-20240307",
@@ -89,7 +89,7 @@ Respond with ONLY the markdown content for these two sections:
             "content-type": "application/json"
         }
     else:
-        print("Using Google Gemini API...")
+        print(" ⚙️  Using Google Gemini API...")
         model_name = _get_best_gemini_model(gemini_key)
         url = f"https://generativelanguage.googleapis.com/v1beta/{model_name}:generateContent?key={gemini_key}"
         payload = {
@@ -113,7 +113,7 @@ Respond with ONLY the markdown content for these two sections:
             with urllib.request.urlopen(req, timeout=120.0) as resp:
                 data = json.loads(resp.read().decode("utf-8"))
                 elapsed = time.time() - start_time
-                print(f"LLM API call completed in {elapsed:.2f} seconds.")
+                print(f" ✨ LLM API call completed in {elapsed:.2f} seconds.")
                 if ollama_model:
                     return data["response"]
                 elif anthropic_key:
@@ -122,21 +122,22 @@ Respond with ONLY the markdown content for these two sections:
                     return data["candidates"][0]["content"]["parts"][0]["text"]
         except urllib.error.HTTPError as e:
             if e.code == 429 and attempt < retries - 1:
-                print(f"Rate limited (429). Retrying in {delay} seconds (Attempt {attempt+1}/{retries})...")
+                print(f" ⚠️  Rate limited (429). Retrying in {delay} seconds (Attempt {attempt+1}/{retries})...")
                 time.sleep(delay)
                 delay *= 2
                 continue
                 
-            print(f"API Error: {e}")
+            print(f" ❌ API Error: {e}")
             try:
-                print(f"Response body: {e.read().decode('utf-8')}")
+                print(f"    Response body: {e.read().decode('utf-8')}")
             except:
                 pass
             return None
         except Exception as e:
-            print(f"API Error: {e}")
+            print(f" ❌ API Error: {e}")
             return None
             
     return None
+
 
 
